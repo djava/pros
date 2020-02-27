@@ -82,6 +82,17 @@ int port_mutex_take(uint8_t port) {
 	return xTaskGetSchedulerState() != taskSCHEDULER_RUNNING || mutex_take(port_mutexes[port], TIMEOUT_MAX);
 }
 
+bool is_port_mutex_taken_by_this_task(uint8_t port)
+{
+	if (port >= V5_MAX_DEVICE_PORTS) {
+		return false;
+	}
+	if (xTaskGetSchedulerState() != taskSCHEDULER_RUNNING )
+		return true;
+
+	return mutex_get_owner(port_mutexes[port]) == task_get_current();
+}
+
 int internal_port_mutex_take(uint8_t port) {
 	if (port >= V5_MAX_DEVICE_PORTS) {
 		errno = ENXIO;
